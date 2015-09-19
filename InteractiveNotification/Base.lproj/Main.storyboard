@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="g6a-3h-Nfq">
+                                <rect key="frame" x="20" y="265" width="560" height="70.5"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hTV-Se-buI">
+                                        <rect key="frame" x="213" y="0.0" width="134" height="32"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <state key="normal" title="Show Notification">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="showNotification:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rLI-rL-9cG"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap on button above to schedule interactive notification in 5 seconds. Press home button and wait for notification to appear." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9rh-eA-xMp">
+                                        <rect key="frame" x="1" y="40" width="558.5" height="30.5"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="9rh-eA-xMp" secondAttribute="bottom" id="1E7-MR-lGI"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="9rh-eA-xMp" secondAttribute="trailing" id="1an-aV-sna"/>
+                                    <constraint firstItem="9rh-eA-xMp" firstAttribute="top" secondItem="hTV-Se-buI" secondAttribute="bottom" constant="8" id="1sX-dn-yKU"/>
+                                    <constraint firstItem="hTV-Se-buI" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="g6a-3h-Nfq" secondAttribute="leading" id="DyG-GH-O6y"/>
+                                    <constraint firstItem="hTV-Se-buI" firstAttribute="centerX" secondItem="g6a-3h-Nfq" secondAttribute="centerX" id="Kiw-lR-8GY"/>
+                                    <constraint firstItem="9rh-eA-xMp" firstAttribute="centerX" secondItem="g6a-3h-Nfq" secondAttribute="centerX" id="OFm-fE-LgA"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="hTV-Se-buI" secondAttribute="trailing" id="cM9-tw-BPC"/>
+                                    <constraint firstItem="9rh-eA-xMp" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="g6a-3h-Nfq" secondAttribute="leading" id="nYu-nS-f8Q"/>
+                                    <constraint firstItem="hTV-Se-buI" firstAttribute="top" secondItem="g6a-3h-Nfq" secondAttribute="top" id="qRp-Um-xSo"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="g6a-3h-Nfq" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="2dy-Xl-J2K"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="g6a-3h-Nfq" secondAttribute="trailing" id="NlF-pW-SBA"/>
+                            <constraint firstItem="g6a-3h-Nfq" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Z1s-Em-csq"/>
+                            <constraint firstItem="g6a-3h-Nfq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="whe-Eh-LbC"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Z1s-Em-csq"/>
+                            </mask>
+                        </variation>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="446" y="350"/>
+        </scene>
+    </scenes>
+</document>
