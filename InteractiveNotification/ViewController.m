@@ -15,10 +15,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [NotificationDispatch registerForAction:NotificationActionReplyIdent handler:^(NSDictionary *responseInfo) {
+    [NotificationDispatch registerForAction:NotificationActionReplyIdent handler:^(NSDictionary *userInfo, NSDictionary *responseInfo, void (^completionHandler)()) {
         NSString *message = responseInfo[UIUserNotificationActionResponseTypedTextKey];
         
-        [self showReplyAlertWithMessage:message];
+        [self showReplyAlertWithMessage:message completion:completionHandler];
     }];
     
     [NotificationDispatch registerForLocalNotificationCategory:NotificationCategoryIdent handler:^(UILocalNotification *notification) {
@@ -26,14 +26,14 @@
     }];
 }
 
-- (void)showReplyAlertWithMessage:(NSString *)message {
+- (void)showReplyAlertWithMessage:(NSString *)message completion:(void(^)())completion {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reply" message:[NSString stringWithFormat:@"You have replied: %@", message] preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         
     }];
     [alert addAction:cancel];
     
-    [self presentViewController:alert animated:YES completion:nil];
+    [self presentViewController:alert animated:YES completion:completion];
 }
 
 - (void)showReplyPromptForNotification:(UILocalNotification *)notification {
@@ -50,7 +50,7 @@
     UIAlertAction *reply = [UIAlertAction actionWithTitle:@"Reply" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *textField = weakAlert.textFields[0];
         
-        [self showReplyAlertWithMessage:textField.text];
+        [self showReplyAlertWithMessage:textField.text completion:nil];
     }];
 
     [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
