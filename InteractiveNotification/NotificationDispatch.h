@@ -10,10 +10,15 @@
 
 @interface NotificationDispatch : NSObject
 
-+ (void)registerForAction:(NSString *)identifier handler:(void(^)(NSDictionary *responseInfo))handler;
++ (void)registerForAction:(NSString *)identifier handler:(void(^)(NSDictionary *userInfo, NSDictionary *responseInfo, void (^completionHandler)()))handler;
 + (void)registerForLocalNotificationCategory:(NSString *)identifier handler:(void(^)(UILocalNotification *notification))handler;
++ (void)registerForRemoteNotificationCategory:(NSString *)identifier handler:(void(^)(NSDictionary *userInfo, void(^completionHanlder)(UIBackgroundFetchResult result)))handler;
 
-+ (void)dispatchAction:(NSString *)identifier responseInfo:(NSDictionary *)responseInfo;
++ (void)dispatchAction:(NSString *)identifier userInfo:(NSDictionary *)userInfo responseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler;
+
 + (void)dispatchLocalNotification:(UILocalNotification *)notification;
+
++ (void)dispatchRemoteNotification:(NSDictionary *)userInfo;
++ (void)dispatchRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void(^)(UIBackgroundFetchResult result))completionHandler;
 
 @end

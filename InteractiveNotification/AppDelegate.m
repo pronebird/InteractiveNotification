@@ -39,9 +39,7 @@
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
     NSLog(@"Handle local notification = %@. Action Identifier = %@. Response = %@", notification, identifier, responseInfo);
     
-    [NotificationDispatch dispatchAction:identifier responseInfo:responseInfo];
-    
-    completionHandler();
+    [NotificationDispatch dispatchAction:identifier userInfo:nil responseInfo:responseInfo completionHandler:completionHandler];
 }
 
 @end
