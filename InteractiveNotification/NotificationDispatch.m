@@ -8,49 +8,78 @@
 
 #import "NotificationDispatch.h"
 
-static NSMutableDictionary *notificationActionHandlersDictionary;
-static NSMutableDictionary *localNotificationHandlersDictionary;
-static NSMutableDictionary *remoteNotificationHandlersDictionary;
+static NSMutableDictionary<NSString *, LocalNotificationActionHandler> *localNotificationActionHandlersDictionary;
+static NSMutableDictionary<NSString *, RemoteNotificationActionHandler> *remoteNotificationActionHandlersDictionary;
+
+static NSMutableDictionary<NSString *, LocalNotificationHandler> *localNotificationHandlersDictionary;
+static NSMutableDictionary<NSString *, RemoteNotificationHandler> *remoteNotificationHandlersDictionary;
+
+static LocalNotificationHandler defaultLocalNotificationHandler;
+static RemoteNotificationHandler defaultRemoteNotificationHandler;
 
 @implementation NotificationDispatch
 
 + (void)initialize {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        notificationActionHandlersDictionary = [[NSMutableDictionary alloc] init];
+        localNotificationActionHandlersDictionary = [[NSMutableDictionary alloc] init];
+        remoteNotificationActionHandlersDictionary = [[NSMutableDictionary alloc] init];
+        
         localNotificationHandlersDictionary = [[NSMutableDictionary alloc] init];
         remoteNotificationHandlersDictionary = [[NSMutableDictionary alloc] init];
     });
 }
 
-+ (void)registerForAction:(NSString *)identifier handler:(void(^)(NSDictionary *userInfo, NSDictionary *responseInfo, void (^completionHandler)()))handler {
+#pragma mark - Registration
+
++ (void)setDefaultLocalNotificationHandler:(LocalNotificationHandler)handler {
     @synchronized(self) {
-        notificationActionHandlersDictionary[identifier] = [handler copy];
+        defaultLocalNotificationHandler = [handler copy];
     }
 }
 
-+ (void)registerForLocalNotificationCategory:(NSString *)identifier handler:(void(^)(UILocalNotification *notification))handler {
++ (void)setDefaultRemoteNotificationHandler:(RemoteNotificationHandler)handler {
+    @synchronized(self) {
+        defaultRemoteNotificationHandler = [handler copy];
+    }
+}
+
++ (void)registerForLocalNotificationCategory:(NSString *)identifier handler:(LocalNotificationHandler)handler {
     @synchronized(self) {
         localNotificationHandlersDictionary[identifier] = [handler copy];
     }
 }
 
-+ (void)registerForRemoteNotificationCategory:(NSString *)identifier handler:(void(^)(NSDictionary *userInfo, void(^completionHandler)(UIBackgroundFetchResult result)))handler {
++ (void)registerForRemoteNotificationCategory:(NSString *)identifier handler:(RemoteNotificationHandler)handler {
     @synchronized(self) {
         remoteNotificationHandlersDictionary[identifier] = [handler copy];
     }
 }
 
-+ (void)dispatchAction:(NSString *)identifier userInfo:(NSDictionary *)userInfo responseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
++ (void)registerForLocalNotificationAction:(NSString *)identifier handler:(LocalNotificationActionHandler)handler {
     @synchronized(self) {
-        void(^handler)(NSDictionary *, NSDictionary *, void (^completionHandler)()) = notificationActionHandlersDictionary[identifier];
-        
-        if(handler) {
-            handler(userInfo, responseInfo, completionHandler);
-        }
-        else {
-            completionHandler();
-        }
+        localNotificationActionHandlersDictionary[identifier] = [handler copy];
+    }
+}
+
++ (void)registerForRemoteNotificationAction:(NSString *)identifier handler:(RemoteNotificationActionHandler)handler {
+    @synchronized(self) {
+        remoteNotificationActionHandlersDictionary[identifier] = [handler copy];
+    }
+}
+
+#pragma mark - Dispatch
+
++ (void)dispatchFromLaunchOptions:(NSDictionary *)launchOptions {
+    UILocalNotification *localNotification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];
+    NSDictionary *remoteNotification = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+    
+    if(localNotification) {
+        [self dispatchLocalNotification:localNotification];
+    }
+    
+    if(remoteNotification) {
+        [self dispatchRemoteNotification:remoteNotification];
     }
 }
 
@@ -59,29 +88,20 @@ static NSMutableDictionary *remoteNotificationHandlersDictionary;
         NSString *identifier = notification.category;
         
         if(identifier) {
-            void(^handler)(UILocalNotification *) = localNotificationHandlersDictionary[identifier];
+            LocalNotificationHandler handler = localNotificationHandlersDictionary[identifier];
             
             if(handler) {
                 handler(notification);
             }
         }
+        else if(defaultLocalNotificationHandler) {
+            defaultLocalNotificationHandler(notification);
+        }
     }
 }
 
 + (void)dispatchRemoteNotification:(NSDictionary *)userInfo {
-    @synchronized(self) {
-        void(^completionHandler)() = ^() {};
-        
-        NSString *identifier = [userInfo valueForKeyPath:@"aps.category"];
-        
-        if(identifier) {
-            void(^handler)(NSDictionary *, void(^)()) = remoteNotificationHandlersDictionary[identifier];
-            
-            if(handler) {
-                handler(userInfo, completionHandler);
-            }
-        }
-    }
+    return [self dispatchRemoteNotification:userInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 }
 
 + (void)dispatchRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void(^)(UIBackgroundFetchResult result))completionHandler {
@@ -89,16 +109,41 @@ static NSMutableDictionary *remoteNotificationHandlersDictionary;
         NSString *identifier = [userInfo valueForKeyPath:@"aps.category"];
         
         if(identifier) {
-            void(^handler)(NSDictionary *, void(^)()) = remoteNotificationHandlersDictionary[identifier];
+            RemoteNotificationHandler handler = remoteNotificationHandlersDictionary[identifier];
             
             if(handler) {
-                handler(userInfo, completionHandler);
+                return handler(userInfo, completionHandler);
             }
-            
-            return;
+        }
+        else if(defaultRemoteNotificationHandler) {
+            return defaultRemoteNotificationHandler(userInfo, completionHandler);
         }
         
         completionHandler(UIBackgroundFetchResultFailed);
+    }
+}
+
++ (void)dispatchAction:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification responseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+    @synchronized(self) {
+        LocalNotificationActionHandler handler = localNotificationActionHandlersDictionary[identifier];
+        
+        if(handler) {
+            return handler(notification, responseInfo, completionHandler);
+        }
+        
+        completionHandler();
+    }
+}
+
++ (void)dispatchAction:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo responseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+    @synchronized(self) {
+        RemoteNotificationActionHandler handler = remoteNotificationActionHandlersDictionary[identifier];
+        
+        if(handler) {
+            return handler(userInfo, responseInfo, completionHandler);
+        }
+        
+        completionHandler();
     }
 }
 
