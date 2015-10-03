@@ -26,6 +26,7 @@ NSString * const NotificationActionIgnoreIndent = @"Ignore";
     replyAction.destructive = NO;
     replyAction.authenticationRequired = NO;
     replyAction.behavior = UIUserNotificationActionBehaviorTextInput;
+    replyAction.parameters = @{ UIUserNotificationTextInputActionButtonTitleKey: @"Reply" };
     
     ignoreAction = [[UIMutableUserNotificationAction alloc] init];
     ignoreAction.activationMode = UIUserNotificationActivationModeBackground;
