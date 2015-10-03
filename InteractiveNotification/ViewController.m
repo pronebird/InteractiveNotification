@@ -12,23 +12,11 @@
 
 @implementation ViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    [NotificationDispatch registerForAction:NotificationActionReplyIdent handler:^(NSDictionary *userInfo, NSDictionary *responseInfo, void (^completionHandler)()) {
-        NSString *message = responseInfo[UIUserNotificationActionResponseTypedTextKey];
-        
-        [self showReplyAlertWithMessage:message completion:completionHandler];
-    }];
-    
-    [NotificationDispatch registerForLocalNotificationCategory:NotificationCategoryIdent handler:^(UILocalNotification *notification) {
-        [self showReplyPromptForNotification:notification];
-    }];
-}
+#pragma mark - Public methods
 
 - (void)showReplyAlertWithMessage:(NSString *)message completion:(void(^)())completion {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reply" message:[NSString stringWithFormat:@"You have replied: %@", message] preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         
     }];
     [alert addAction:cancel];
@@ -62,6 +50,8 @@
 
     [self presentViewController:alert animated:YES completion:nil];
 }
+
+#pragma mark - Actions
 
 - (IBAction)showNotification:(id)sender {
     UILocalNotification *notification = [[UILocalNotification alloc] init];

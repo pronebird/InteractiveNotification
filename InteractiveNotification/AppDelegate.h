@@ -8,9 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@class ViewController;
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+
+@property (readonly) ViewController *rootViewController;
 
 
 @end

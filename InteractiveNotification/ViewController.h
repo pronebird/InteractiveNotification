@@ -10,6 +10,8 @@
 
 @interface ViewController : UIViewController
 
+- (void)showReplyAlertWithMessage:(NSString *)message completion:(void(^)())completion;
+- (void)showReplyPromptForNotification:(UILocalNotification *)notification;
 
 @end
 

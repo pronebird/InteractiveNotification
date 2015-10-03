@@ -7,10 +7,16 @@
 //
 
 #import "AppDelegate.h"
+
+#import "ViewController.h"
 #import "NotificationDispatch.h"
 #import "NotificationDispatch+Actions.h"
 
 @implementation AppDelegate
+
+- (ViewController *)rootViewController {
+    return (ViewController *)self.window.rootViewController;
+}
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
     NSLog(@"Registered user notification settings = %@", notificationSettings);
@@ -27,6 +33,23 @@
     
     [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     
+    [NotificationDispatch registerForLocalNotificationAction:NotificationActionReplyIdent handler:^(UILocalNotification *notification, NSDictionary *responseInfo, void (^completionHandler)()) {
+        NSString *message = responseInfo[UIUserNotificationActionResponseTypedTextKey];
+        
+        [self.rootViewController showReplyAlertWithMessage:message completion:completionHandler];
+    }];
+    
+    [NotificationDispatch registerForLocalNotificationCategory:NotificationCategoryIdent handler:^(UILocalNotification *notification) {
+        [self.rootViewController showReplyPromptForNotification:notification];
+    }];
+    
+    // we must do this to make sure that our root view controller
+    // is on screen and ready to present alert controllers from dispatch
+    [self.window makeKeyAndVisible];
+    
+    // dispatch notifications when opening app from push notification
+    [NotificationDispatch dispatchFromLaunchOptions:launchOptions];
+    
     return YES;
 }
 
@@ -39,7 +62,10 @@
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
     NSLog(@"Handle local notification = %@. Action Identifier = %@. Response = %@", notification, identifier, responseInfo);
     
-    [NotificationDispatch dispatchAction:identifier userInfo:nil responseInfo:responseInfo completionHandler:completionHandler];
+    [NotificationDispatch dispatchAction:identifier
+                    forLocalNotification:notification
+                            responseInfo:responseInfo
+                       completionHandler:completionHandler];
 }
 
 @end
